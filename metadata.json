@@ -1,0 +1,6 @@
+{
+  "name": "Relic Trail",
+  "description": "Competitive multiplayer crystal board adventure with hazard trails, tactical power-ups, four realms, seasonal rankings, and real-time matchmaking.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

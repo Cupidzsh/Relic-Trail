@@ -1,0 +1,368 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Global Hardened Helpers
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidCrystalColor(color) {
+      return color in ['ruby', 'sapphire', 'emerald', 'topaz'];
+    }
+
+    function isValidTier(tier) {
+      return tier in [
+        'Bronze Crystal',
+        'Silver Facet',
+        'Gold Relic',
+        'Emerald Paragon',
+        'Obsidian Grandmaster'
+      ];
+    }
+
+    function isValidPowerupMap(inv) {
+      return inv is map
+        && inv.keys().hasAll(['leap', 'swap', 'boost', 'shield'])
+        && inv.keys().hasOnly(['leap', 'swap', 'boost', 'shield'])
+        && inv.leap is number && inv.leap >= 0 && inv.leap <= 99
+        && inv.swap is number && inv.swap >= 0 && inv.swap <= 99
+        && inv.boost is number && inv.boost >= 0 && inv.boost <= 99
+        && inv.shield is number && inv.shield >= 0 && inv.shield <= 99;
+    }
+
+    function isValidBoundedStringList(arr, maxLen) {
+      return arr is list
+        && arr.size() >= 1
+        && arr.size() <= maxLen
+        && arr[0] is string
+        && arr[0].size() >= 1
+        && arr[0].size() <= 40;
+    }
+
+    function isValidUserProfile(data) {
+      return data.keys().hasAll([
+          'uid',
+          'displayName',
+          'crystalColor',
+          'xp',
+          'level',
+          'coins',
+          'highestCampaignLevel',
+          'unlockedRealms',
+          'unlockedSkins',
+          'powerupInventory',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'uid',
+          'displayName',
+          'crystalColor',
+          'xp',
+          'level',
+          'coins',
+          'highestCampaignLevel',
+          'unlockedRealms',
+          'unlockedSkins',
+          'powerupInventory',
+          'speedUpgradeLevel',
+          'purchasedMissions',
+          'createdAt',
+          'updatedAt'
+        ])
+        && isValidId(data.uid)
+        && data.uid == request.auth.uid
+        && data.displayName is string
+        && data.displayName.size() >= 1
+        && data.displayName.size() <= 32
+        && isValidCrystalColor(data.crystalColor)
+        && data.xp is number && data.xp >= 0 && data.xp <= 10000000
+        && data.level is number && data.level >= 1 && data.level <= 50
+        && data.coins is number && data.coins >= 0 && data.coins <= 10000000
+        && data.highestCampaignLevel is number && data.highestCampaignLevel >= 1 && data.highestCampaignLevel <= 10000
+        && isValidBoundedStringList(data.unlockedRealms, 10)
+        && isValidBoundedStringList(data.unlockedSkins, 20)
+        && isValidPowerupMap(data.powerupInventory)
+        && (!('speedUpgradeLevel' in data) || (data.speedUpgradeLevel is number && data.speedUpgradeLevel >= 0 && data.speedUpgradeLevel <= 10))
+        && (!('purchasedMissions' in data) || isValidBoundedStringList(data.purchasedMissions, 20))
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidLeaderboardEntry(data) {
+      return data.keys().hasAll([
+          'uid',
+          'displayName',
+          'crystalColor',
+          'rating',
+          'tier',
+          'wins',
+          'gamesPlayed',
+          'level',
+          'seasonId',
+          'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'uid',
+          'displayName',
+          'crystalColor',
+          'rating',
+          'tier',
+          'wins',
+          'gamesPlayed',
+          'level',
+          'roundsCompleted',
+          'playerRank',
+          'seasonId',
+          'updatedAt'
+        ])
+        && isValidId(data.uid)
+        && data.uid == request.auth.uid
+        && data.displayName is string
+        && data.displayName.size() >= 1
+        && data.displayName.size() <= 32
+        && isValidCrystalColor(data.crystalColor)
+        && data.rating is number && data.rating >= 0 && data.rating <= 10000
+        && isValidTier(data.tier)
+        && data.wins is number && data.wins >= 0 && data.wins <= 100000
+        && data.gamesPlayed is number && data.gamesPlayed >= 0 && data.gamesPlayed <= 100000
+        && data.wins <= data.gamesPlayed
+        && data.level is number && data.level >= 1 && data.level <= 50
+        && (!('roundsCompleted' in data) || (data.roundsCompleted is number && data.roundsCompleted >= 0 && data.roundsCompleted <= 1000))
+        && (!('playerRank' in data) || (data.playerRank is string && data.playerRank.size() >= 1 && data.playerRank.size() <= 48))
+        && isValidId(data.seasonId)
+        && data.seasonId.size() <= 32
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidMatchRecord(data) {
+      return data.keys().hasAll([
+          'matchId',
+          'uid',
+          'realm',
+          'mode',
+          'placement',
+          'ratingDelta',
+          'xpEarned',
+          'coinsEarned',
+          'createdAt'
+        ])
+        && data.keys().hasOnly([
+          'matchId',
+          'uid',
+          'realm',
+          'mode',
+          'placement',
+          'ratingDelta',
+          'xpEarned',
+          'coinsEarned',
+          'createdAt'
+        ])
+        && isValidId(data.matchId)
+        && isValidId(data.uid)
+        && data.uid == request.auth.uid
+        && data.realm in ['jungle', 'desert', 'dragon', 'neon']
+        && data.mode in ['ranked', 'custom', 'campaign']
+        && data.placement is number && data.placement >= 1 && data.placement <= 4
+        && data.ratingDelta is number && data.ratingDelta >= -100 && data.ratingDelta <= 100
+        && data.xpEarned is number && data.xpEarned >= 0 && data.xpEarned <= 2000
+        && data.coinsEarned is number && data.coinsEarned >= 0 && data.coinsEarned <= 5000
+        && data.createdAt is timestamp;
+    }
+
+    function isValidRoundEntry(data) {
+      return data.keys().hasAll([
+          'entryId',
+          'uid',
+          'displayName',
+          'crystalColor',
+          'roundNumber',
+          'stagesCleared',
+          'completedRound',
+          'totalClearTimeMs',
+          'tournamentWindowId',
+          'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'entryId',
+          'uid',
+          'displayName',
+          'crystalColor',
+          'roundNumber',
+          'stagesCleared',
+          'completedRound',
+          'totalClearTimeMs',
+          'tournamentWindowId',
+          'updatedAt'
+        ])
+        && data.entryId is string
+        && data.entryId.size() >= 1
+        && data.entryId.size() <= 140
+        && data.entryId.matches('^[a-zA-Z0-9_\\-]+$')
+        && isValidId(data.uid)
+        && data.uid == request.auth.uid
+        && data.displayName is string
+        && data.displayName.size() >= 1
+        && data.displayName.size() <= 32
+        && isValidCrystalColor(data.crystalColor)
+        && data.roundNumber is number && data.roundNumber >= 1 && data.roundNumber <= 1000
+        && data.stagesCleared is number && data.stagesCleared >= 0 && data.stagesCleared <= 10
+        && data.completedRound is bool
+        && data.totalClearTimeMs is number && data.totalClearTimeMs >= 0 && data.totalClearTimeMs <= 36000000
+        && isValidId(data.tournamentWindowId)
+        && data.tournamentWindowId.size() <= 32
+        && data.updatedAt is timestamp;
+    }
+
+    // Connection check document (read-only)
+    match /test/connection {
+      allow get: if true;
+      allow list, write: if false;
+    }
+
+    // Owner-only private user profile & progression
+    match /users/{userId} {
+      allow get: if isValidId(userId) && isOwner(userId);
+      allow list: if false;
+      allow create: if isValidId(userId)
+        && isVerifiedUser()
+        && isOwner(userId)
+        && isValidUserProfile(incoming())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(userId)
+        && isVerifiedUser()
+        && isOwner(userId)
+        && isValidUserProfile(incoming())
+        && incoming().uid == existing().uid
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'displayName',
+          'crystalColor',
+          'xp',
+          'level',
+          'coins',
+          'highestCampaignLevel',
+          'unlockedRealms',
+          'unlockedSkins',
+          'powerupInventory',
+          'speedUpgradeLevel',
+          'purchasedMissions',
+          'updatedAt'
+        ]);
+      allow delete: if false;
+
+      // Match history subcollection gated by Master Gate on parent UserProfile
+      match /matches/{matchId} {
+        allow get: if isValidId(userId)
+          && isValidId(matchId)
+          && isOwner(userId)
+          && exists(/databases/$(database)/documents/users/$(userId));
+        allow list: if isValidId(userId)
+          && isOwner(userId)
+          && resource.data.uid == request.auth.uid;
+        allow create: if isValidId(userId)
+          && isValidId(matchId)
+          && isVerifiedUser()
+          && isOwner(userId)
+          && exists(/databases/$(database)/documents/users/$(userId))
+          && isValidMatchRecord(incoming())
+          && incoming().matchId == matchId
+          && incoming().createdAt == request.time;
+        allow update, delete: if false;
+      }
+    }
+
+    // Public Seasonal Leaderboard (strictly zero PII)
+    match /leaderboard/{userId} {
+      allow get: if isValidId(userId);
+      allow list: if resource.data.seasonId == 'season-4';
+      allow create: if isValidId(userId)
+        && isVerifiedUser()
+        && isOwner(userId)
+        && isValidLeaderboardEntry(incoming())
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(userId)
+        && isVerifiedUser()
+        && isOwner(userId)
+        && isValidLeaderboardEntry(incoming())
+        && incoming().uid == existing().uid
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'displayName',
+          'crystalColor',
+          'rating',
+          'tier',
+          'wins',
+          'gamesPlayed',
+          'level',
+          'roundsCompleted',
+          'playerRank',
+          'seasonId',
+          'updatedAt'
+        ]);
+      allow delete: if false;
+    }
+
+    // Scheduled Global Round Tournament Standings (strictly zero PII)
+    match /round_entries/{entryId} {
+      allow get: if entryId is string && entryId.size() >= 1 && entryId.size() <= 140 && entryId.matches('^[a-zA-Z0-9_\\-]+$');
+      allow list: if resource.data.roundNumber >= 1 && resource.data.roundNumber <= 1000;
+      allow create: if entryId is string
+        && entryId.size() >= 1
+        && entryId.size() <= 140
+        && entryId.matches('^[a-zA-Z0-9_\\-]+$')
+        && isVerifiedUser()
+        && isValidRoundEntry(incoming())
+        && incoming().entryId == entryId
+        && incoming().updatedAt == request.time;
+      allow update: if entryId is string
+        && entryId.size() >= 1
+        && entryId.size() <= 140
+        && entryId.matches('^[a-zA-Z0-9_\\-]+$')
+        && isVerifiedUser()
+        && isValidRoundEntry(incoming())
+        && existing().uid == request.auth.uid
+        && incoming().uid == existing().uid
+        && incoming().entryId == existing().entryId
+        && incoming().roundNumber == existing().roundNumber
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'displayName',
+          'crystalColor',
+          'stagesCleared',
+          'completedRound',
+          'totalClearTimeMs',
+          'tournamentWindowId',
+          'updatedAt'
+        ]);
+      allow delete: if false;
+    }
+  }
+}

@@ -1,0 +1,313 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Player progression, level, currency, unlocked skins/realms, and power-up inventory.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Authenticated Firebase user UID."
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "description": "Player chosen display handle."
+        },
+        "crystalColor": {
+          "type": "string",
+          "enum": ["ruby", "sapphire", "emerald", "topaz"],
+          "description": "Preferred crystal token color."
+        },
+        "xp": {
+          "type": "number",
+          "description": "Total accumulated experience points."
+        },
+        "level": {
+          "type": "number",
+          "description": "Player progression level (1-50)."
+        },
+        "coins": {
+          "type": "number",
+          "description": "Relic gold earned from victories and chests."
+        },
+        "highestCampaignLevel": {
+          "type": "number",
+          "description": "Next unlocked tournament level (1-10000, infinite rounds of 10)."
+        },
+        "unlockedRealms": {
+          "type": "array",
+          "description": "Unlocked realm IDs (bounded max 10)."
+        },
+        "unlockedSkins": {
+          "type": "array",
+          "description": "Unlocked crystal aura skins (bounded max 20)."
+        },
+        "powerupInventory": {
+          "type": "object",
+          "description": "Owned power-up charges by key (leap, swap, boost, shield)."
+        },
+        "speedUpgradeLevel": {
+          "type": "number",
+          "description": "Purchased speed training tier (0-10) granting +2.5 m/s permanent sprint pace per tier."
+        },
+        "purchasedMissions": {
+          "type": "array",
+          "description": "Completed market rank/upgrade mission contract IDs (bounded max 20)."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Account creation server timestamp."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last update server timestamp."
+        }
+      },
+      "required": [
+        "uid",
+        "displayName",
+        "crystalColor",
+        "xp",
+        "level",
+        "coins",
+        "highestCampaignLevel",
+        "unlockedRealms",
+        "unlockedSkins",
+        "powerupInventory",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "LeaderboardEntry": {
+      "title": "LeaderboardEntry",
+      "description": "Public seasonal ranking entry for the global leaderboard (zero PII).",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Player UID."
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "description": "Public display name."
+        },
+        "crystalColor": {
+          "type": "string",
+          "enum": ["ruby", "sapphire", "emerald", "topaz"],
+          "description": "Player signature crystal color."
+        },
+        "rating": {
+          "type": "number",
+          "description": "Seasonal competitive rating points (RP)."
+        },
+        "tier": {
+          "type": "string",
+          "enum": ["Bronze Crystal", "Silver Facet", "Gold Relic", "Emerald Paragon", "Obsidian Grandmaster"],
+          "description": "Seasonal ranking tier."
+        },
+        "wins": {
+          "type": "number",
+          "description": "Total seasonal victories."
+        },
+        "gamesPlayed": {
+          "type": "number",
+          "description": "Total seasonal matches played."
+        },
+        "level": {
+          "type": "number",
+          "description": "Player level."
+        },
+        "roundsCompleted": {
+          "type": "number",
+          "description": "Number of 10-level Tournament Rounds completed."
+        },
+        "playerRank": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 48,
+          "description": "Earned Tournament Round rank title."
+        },
+        "seasonId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Season identifier (e.g. season-4)."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last match timestamp."
+        }
+      },
+      "required": [
+        "uid",
+        "displayName",
+        "crystalColor",
+        "rating",
+        "tier",
+        "wins",
+        "gamesPlayed",
+        "level",
+        "seasonId",
+        "updatedAt"
+      ]
+    },
+    "MatchRecord": {
+      "title": "MatchRecord",
+      "description": "Historical match result stored under the owning player's subcollection.",
+      "type": "object",
+      "properties": {
+        "matchId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "realm": {
+          "type": "string",
+          "enum": ["jungle", "desert", "dragon", "neon"]
+        },
+        "mode": {
+          "type": "string",
+          "enum": ["ranked", "custom", "campaign"]
+        },
+        "placement": {
+          "type": "number"
+        },
+        "ratingDelta": {
+          "type": "number"
+        },
+        "xpEarned": {
+          "type": "number"
+        },
+        "coinsEarned": {
+          "type": "number"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "matchId",
+        "uid",
+        "realm",
+        "mode",
+        "placement",
+        "ratingDelta",
+        "xpEarned",
+        "coinsEarned",
+        "createdAt"
+      ]
+    },
+    "RoundTournamentEntry": {
+      "title": "RoundTournamentEntry",
+      "description": "Scheduled global tournament progress & completion record per player per 10-level Round (zero PII).",
+      "type": "object",
+      "properties": {
+        "entryId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 140,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Composite document ID formatted as {roundNumber}_{uid}."
+        },
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Authenticated player UID."
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "description": "Public runner handle."
+        },
+        "crystalColor": {
+          "type": "string",
+          "enum": ["ruby", "sapphire", "emerald", "topaz"],
+          "description": "Runner signature crystal color."
+        },
+        "roundNumber": {
+          "type": "number",
+          "description": "Tournament round index (1-1000)."
+        },
+        "stagesCleared": {
+          "type": "number",
+          "description": "Number of stages cleared in this Round (0-10)."
+        },
+        "completedRound": {
+          "type": "boolean",
+          "description": "True once all 10 levels in the Round have been completed."
+        },
+        "totalClearTimeMs": {
+          "type": "number",
+          "description": "Cumulative clear time in milliseconds for tie-breaking."
+        },
+        "tournamentWindowId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Scheduled global tournament window ID."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when progress/completion was recorded."
+        }
+      },
+      "required": [
+        "entryId",
+        "uid",
+        "displayName",
+        "crystalColor",
+        "roundNumber",
+        "stagesCleared",
+        "completedRound",
+        "totalClearTimeMs",
+        "tournamentWindowId",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Owner-only player profile, level, rewards, and power-up inventory."
+    },
+    "/users/{userId}/matches/{matchId}": {
+      "schema": { "$ref": "#/entities/MatchRecord" },
+      "description": "Owner-only match history log gated by parent UserProfile existence."
+    },
+    "/leaderboard/{userId}": {
+      "schema": { "$ref": "#/entities/LeaderboardEntry" },
+      "description": "Public seasonal global leaderboard containing zero PII."
+    },
+    "/round_entries/{entryId}": {
+      "schema": { "$ref": "#/entities/RoundTournamentEntry" },
+      "description": "Public global round tournament standings tracking first-to-finish champions per Round."
+    }
+  }
+}

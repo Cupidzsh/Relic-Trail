@@ -1,0 +1,149 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-display: 'Cinzel', Georgia, serif;
+    --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: #0B101B;
+    color: #F1F5F9;
+    overflow-x: hidden;
+  }
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-mono-tabular {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Subway Surfers / Temple Run articulated sprint kinematics */
+@keyframes stride-thigh-a {
+  0%, 100% { transform: rotate(34deg) translateY(0px); }
+  50% { transform: rotate(-34deg) translateY(-2px); }
+}
+
+@keyframes stride-thigh-b {
+  0%, 100% { transform: rotate(-34deg) translateY(-2px); }
+  50% { transform: rotate(34deg) translateY(0px); }
+}
+
+@keyframes stride-shin-a {
+  0% { transform: rotate(-8deg); }
+  25% { transform: rotate(36deg); }
+  50% { transform: rotate(12deg); }
+  75% { transform: rotate(-22deg); }
+  100% { transform: rotate(-8deg); }
+}
+
+@keyframes stride-shin-b {
+  0% { transform: rotate(12deg); }
+  25% { transform: rotate(-22deg); }
+  50% { transform: rotate(-8deg); }
+  75% { transform: rotate(36deg); }
+  100% { transform: rotate(12deg); }
+}
+
+@keyframes arm-upper-a {
+  0%, 100% { transform: rotate(-32deg); }
+  50% { transform: rotate(32deg); }
+}
+
+@keyframes arm-upper-b {
+  0%, 100% { transform: rotate(32deg); }
+  50% { transform: rotate(-32deg); }
+}
+
+@keyframes arm-fore-a {
+  0%, 100% { transform: rotate(-18deg); }
+  50% { transform: rotate(16deg); }
+}
+
+@keyframes arm-fore-b {
+  0%, 100% { transform: rotate(16deg); }
+  50% { transform: rotate(-18deg); }
+}
+
+@keyframes runner-bob {
+  0%, 100% { transform: translateY(0px) scaleY(1); }
+  25% { transform: translateY(-3.5px) scaleY(1.03); }
+  50% { transform: translateY(0px) scaleY(0.98); }
+  75% { transform: translateY(-3.5px) scaleY(1.03); }
+}
+
+@keyframes rail-scroll {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 48px; }
+}
+
+@keyframes coin-spin {
+  0%, 100% { transform: scaleX(1); }
+  50% { transform: scaleX(0.45); }
+}
+
+.animate-thigh-a {
+  transform-origin: 21px 28px;
+  animation: stride-thigh-a var(--stride-ms, 240ms) ease-in-out infinite;
+}
+
+.animate-thigh-b {
+  transform-origin: 27px 28px;
+  animation: stride-thigh-b var(--stride-ms, 240ms) ease-in-out infinite;
+}
+
+.animate-shin-a {
+  transform-origin: 20px 36px;
+  animation: stride-shin-a var(--stride-ms, 240ms) ease-in-out infinite;
+}
+
+.animate-shin-b {
+  transform-origin: 28px 36px;
+  animation: stride-shin-b var(--stride-ms, 240ms) ease-in-out infinite;
+}
+
+.animate-upper-arm-a {
+  transform-origin: 17px 16px;
+  animation: arm-upper-a var(--stride-ms, 240ms) ease-in-out infinite;
+}
+
+.animate-upper-arm-b {
+  transform-origin: 31px 16px;
+  animation: arm-upper-b var(--stride-ms, 240ms) ease-in-out infinite;
+}
+
+.animate-forearm-a {
+  transform-origin: 13px 22px;
+  animation: arm-fore-a var(--stride-ms, 240ms) ease-in-out infinite;
+}
+
+.animate-forearm-b {
+  transform-origin: 35px 22px;
+  animation: arm-fore-b var(--stride-ms, 240ms) ease-in-out infinite;
+}
+
+.animate-runner-bob {
+  animation: runner-bob var(--stride-ms, 240ms) ease-in-out infinite;
+}
+
+.animate-rail-scroll {
+  animation: rail-scroll var(--rail-ms, 180ms) linear infinite;
+}
+
+.animate-coin-spin {
+  animation: coin-spin 0.85s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
